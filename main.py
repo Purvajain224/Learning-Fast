@@ -1,33 +1,26 @@
-from fastapi import FastAPI,Request,status,HTTPException
+from fastapi import FastAPI,Request,status,HTTPException,Depends
 from fastapi.responses import HTMLResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from schemas import PostCreate,PostResponse
+from typing import Annotated
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+import models
+from database import Base,engine,get_db
+from schemas import PostCreate,PostResponse,UserCreate,UserResponse
+
+
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
 
 app.mount("/static",StaticFiles(directory="static"),name="static")
 
+app.mount("/media",StaticFiles(directory="media"),name="media")
 templates=Jinja2Templates(directory="templates")
-
-posts: list[dict] =[
-    {
-        "id": 1,
-        "title": "Introduction to FastAPI",
-        "author": "Purva Jain",
-        "content": "FastAPI is a modern Python framework for building APIs quickly.",
-        "date_posted": "2026-01-16"
-    },
-    {
-        "id": 2,
-        "title": "Getting Started with Python",
-        "author": "Purva Jain",
-        "content": "Python is easy to learn and widely used in web and AI development.",
-        "date_posted": "2026-01-15"
-    },
-]
 
 @app.get("/",include_in_schema=True,name="home")  #include_in_schema decides if it appears in swagger any case it still can be run 
 @app.get("/posts",include_in_schema=False,name="posts")
@@ -50,6 +43,15 @@ def post_page(request: Request,post_id: int):
                 )
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND , detail="Post not found")
 
+
+
+@app.post(
+    "/api/users",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_user(user: UserCreate, db: Annotated[Session,Depends(get_db)]):
+    pass
 
 @app.get("/api/posts", response_model=list[PostResponse])
 def get_posts():
