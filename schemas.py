@@ -12,7 +12,7 @@ class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
     image_file: str | None
-    imag_path: str
+    image_path: str
 
 
 class PostBase(BaseModel):
