@@ -29,10 +29,13 @@ def home(request: Request, db: Annotated[Session, Depends(get_db)]):
     result = db.execute(select(models.Post))
     posts = result.scalars().all()
     return templates.TemplateResponse(
-        request,
-        "home.html",
-        {"posts": posts, "title": "Home"},
-    )
+    "home.html",
+    {
+        "request": request,
+        "posts": posts,
+        "title": "Home",
+    },
+)
 
 ## post_page
 @app.get("/posts/{post_id}", include_in_schema=False)
@@ -66,11 +69,14 @@ def user_posts_page(
     result = db.execute(select(models.Post).where(models.Post.user_id == user_id))
     posts = result.scalars().all()
     return templates.TemplateResponse(
-        request,
-        "user_posts.html",
-        {"posts": posts, "user": user, "title": f"{user.username}'s Posts"},
-    )
-
+    "user_posts.html",
+    {
+        "request": request,
+        "posts": posts,
+        "user": user,
+        "title": f"{user.username}'s Posts",
+    },
+)
 
 
 @app.post(
