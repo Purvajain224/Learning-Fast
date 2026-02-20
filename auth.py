@@ -1,25 +1,28 @@
-from datetime import timezone ,datetime,timedelta
+from datetime import timezone, datetime, timedelta
+from typing import Annotated
+
 import jwt
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
-from config import settings
-from typing import Annotated
-from fastapi import Depends,HTTPException,status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 import models
+from config import settings
 from database import get_db
 
-password_hash= PasswordHash.recommended()
+password_hash = PasswordHash.recommended()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/users/token")
 
-def hash_password(password :str) -> str :
+
+def hash_password(password: str) -> str:
     return password_hash.hash(password)
 
-def verify_password(plain_password:str, hashed_password:str) -> bool:
-    return password_hash.verify(plain_password,hashed_password)
-#encrpytion is revrsible but hashing is not . more secure . same password gets different hash
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return password_hash.verify(plain_password, hashed_password)
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
@@ -54,7 +57,6 @@ def verify_access_token(token: str) -> str | None:
     else:
         return payload.get("sub")
     
-## get_current_user
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -88,4 +90,4 @@ async def get_current_user(
         )
     return user
 
-CurrentUser= Annotated [models.User,Depends(get_current_user)]
+CurrentUser = Annotated[models.User, Depends(get_current_user)]
