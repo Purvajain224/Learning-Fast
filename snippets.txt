@@ -37,7 +37,13 @@ def post_page(request: Request,post_id: int):
                 {"post": post, "title": title},
                 )
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND , detail="Post not found")
-
+{
+  "id": 2,
+  "username": "Atharv",
+  "image_file": null,
+  "image_path": "/static/profile_pics/default.jpg",
+  "email": "test@example.com"
+}
 status_code that we are using 
 200 OK - Successful GET, PUT, or PATCH  
 201 Created - Successful POST for users and posts  
